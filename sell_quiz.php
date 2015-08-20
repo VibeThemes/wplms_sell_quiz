@@ -85,7 +85,7 @@ if(!class_exists('wplms_sell_quiz'))
 				}
 				if ( in_array( 'paid-memberships-pro/paid-memberships-pro.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) && is_user_logged_in()) {
 				     $membership_ids=vibe_sanitize(get_post_meta($quiz_id,'vibe_quiz_membership',false));
-				     if(!pmpro_hasMembershipLevel($membership_ids,$user_id) && isset($membership_ids) && count($membership_ids) >= 1){
+				     if(pmpro_hasMembershipLevel($membership_ids,$user_id) && isset($membership_ids) && count($membership_ids) >= 1){
 				        $membership_taken=get_user_meta($user_id,$quiz_id,true);
 				        if(!$membership_taken){
 				        	$pmpro_levels_page_id = get_option('pmpro_levels_page_id');
