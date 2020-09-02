@@ -18,7 +18,81 @@ class WPLMS_Sell_Quiz_Init{
 
     private function __construct(){
     	add_filter('wplms_quiz_metabox',array($this,'wplms_sell_quiz_as_product'));
-      add_filter('wplms_start_quiz_button',array($this,'the_quiz_button'),10,2);
+        add_filter('wplms_start_quiz_button',array($this,'the_quiz_button'),10,2);
+        add_filter( 'bp_course_api_get_user_single_quiz_data',array($this,'check_quiz_access') ,10,3);
+
+
+        add_filter('wplms_course_creation_tabs',array($this,'wplms_sell_quiz_4_0_settings'));
+    
+
+    }
+
+
+    function wplms_sell_quiz_4_0_settings($tabs){
+        $settings = array();
+        if(in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))){
+            $settings[] =array(
+              'label' => __('Associated Product','vibe-customtypes'), // <label>
+              'desc'  => __('Associated Product with the Course.','vibe-customtypes'), // description
+              'id'  => 'vibe_quiz_product', // field id and name
+              'type'  => 'selectcpt', // type of field
+              'post_type'=> 'product',
+                  'std'   => '','from'=>'meta',
+            );
+          }
+          if ( in_array( 'paid-memberships-pro/paid-memberships-pro.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) )) {
+            $levels=pmpro_getAllLevels();
+              foreach($levels as $level){
+                $level_array[]= array('value' =>$level->id,'label'=>$level->name);
+              }
+            $settings[] =array(
+              'label' => __('PMPro Membership','vibe-customtypes'), // <label>
+              'desc'  => __('Required Membership level for this quiz','vibe-customtypes'), // description
+              'id'  => 'vibe_quiz_pmpro_membership', // field id and name
+              'type'  => 'multiselect', // type of field
+                  'options' => $level_array,'from'=>'meta',
+            );
+          }
+          if(in_array('wplms-mycred-addon/wplms-mycred-addon.php', apply_filters('active_plugins', get_option('active_plugins')))){
+
+          $settings[] =array( // Text Input
+            'label' => __('MyCred Points','vibe-customtypes'), // <label>
+            'desc'  => __('MyCred Points required to take this quiz.','vibe-customtypes'),
+            'id'  => 'vibe_quiz_mycred_points', // field id and name
+            'type'  => 'number', // type of field
+            'from'=>'meta',
+          );
+        }
+
+        foreach ($tabs['course_curriculum']['fields'] as $key => $field) {
+            if($field['id'] == 'vibe_course_curriculum'){
+                 if(!empty($field['curriculum_elements'])){
+                    foreach ($field['curriculum_elements'] as $k => $elements) {
+                        if($elements['type']=='quiz'){
+                            foreach ($elements['types'] as $j => $types) {
+
+                                array_splice($tabs['course_curriculum']['fields'][$key]['curriculum_elements'][$k]['types'][$j]['fields'], (count($tabs['course_curriculum']['fields'][$key]['curriculum_elements'][$k]['types'][$j]['fields'])-1),0,$settings);
+                                 
+                            }
+                        }
+                    }
+
+                    
+                 } 
+            }
+        }
+        return $tabs;
+    }
+
+    function check_quiz_access($quiz_data, $request,$user_id=null){
+        if(!empty($quiz_data['id'])){
+            $html = $this->the_quiz_button('',$quiz_data['id'],$user_id);
+            if(!empty($html)){
+                $quiz_data['meta']['check_access'] = array('status'=>false,'html'=>$html);
+            }
+        }
+
+        return $quiz_data;
     }
 
     function wplms_sell_quiz_as_product($metabox){
@@ -57,13 +131,16 @@ class WPLMS_Sell_Quiz_Init{
 
         return $metabox;
     } 
-    function the_quiz_button($button,$quiz_id){
+    function the_quiz_button($button,$quiz_id,$user_id=null){
 
-      global $post;
-      
-         $quiz_id=get_the_ID();
-
-        $user_id=get_current_user_id();
+        global $post;
+        if(empty($quiz_id)){
+            $quiz_id=get_the_ID();
+        }
+        if(empty($user_id)){
+            $user_id=get_current_user_id();
+        }
+        
         $flag = 1;
         if(in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))){
             $pid=get_post_meta($quiz_id,'vibe_quiz_product',true);
@@ -78,47 +155,55 @@ class WPLMS_Sell_Quiz_Init{
                     }
                     $flag=0;
                     $html='<a href="'.$pid.'"class="button create-group-button full"> '.__('Take this Quiz','vibe').'</a>';
-              }else{
-                $flag=1;
-              }
-          }
-        }
-        if ( in_array( 'paid-memberships-pro/paid-memberships-pro.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) && is_user_logged_in()) {
-             $membership_ids=vibe_sanitize(get_post_meta($quiz_id,'vibe_quiz_membership',false));
-             if(pmpro_hasMembershipLevel($membership_ids,$user_id) && isset($membership_ids) && count($membership_ids) >= 1){
-                $membership_taken=get_user_meta($user_id,$quiz_id,true);
-                if(!$membership_taken){
-                  $pmpro_levels_page_id = get_option('pmpro_levels_page_id');
-                  $link = get_permalink($pmpro_levels_page_id);
-                  $html='<a href="'.$link.'"class="button create-group-button full"> '.__('Take this Quiz','vibe').'</a>';
-                  $flag=0;
                 }else{
-              $flag=1;
-                }    
+                    $flag=1;
+                }
+            }
+        }
+        if ( in_array( 'paid-memberships-pro/paid-memberships-pro.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+             $membership_ids=get_post_meta($quiz_id,'vibe_quiz_pmpro_membership',true);
+             if(empty($membership_ids)){
+                $membership_ids =array();
              }
+             if(!empty($membership_ids)){
+                if(pmpro_hasMembershipLevel($membership_ids,$user_id) ){
+                   
+                    $flag=1;   
+                 }else{
+
+                    $flag=0;
+                    $pmpro_levels_page_id = get_option('pmpro_levels_page_id');
+                      $link = get_permalink($pmpro_levels_page_id);
+                      $html='<a href="'.$link.'"class="button create-group-button full"> '.__('Take this Quiz','vibe').'</a>';
+                 }
+             }
+             
         }
         if(in_array('wplms-mycred-addon/wplms-mycred-addon.php', apply_filters('active_plugins', get_option('active_plugins')))){
                     $points = get_post_meta($quiz_id,'vibe_quiz_mycred_points',true);
-          $mycred = mycred();
-          $balance = $mycred->get_users_cred( $user_id );
-          if($balance < $points){
-             $flag=0;
-             $html= '<a href="#"class="button create-group-button full"> '.__('Take this Quiz','vibe').'<span>'.__('<br/>Not enough points.','vibe').'</span></a>';
-          }
+            if(!empty($points)){
+                $mycred = mycred();
+              $balance = $mycred->get_users_cred( $user_id );
+              if($balance < $points){
+                 $flag=0;
+                 $html= '<a href="#"class="button create-group-button full"> '.__('Take this Quiz','vibe').'<span>'.__('<br/>Not enough points.','vibe').'</span></a>';
+              }
 
-          if(!$mycred->has_entry( 'purchase_quiz',$quiz_id,$user_id)){
-            $flag=1;
-            $deduct = -1*$points;
-            $mycred->update_users_balance( $user_id, $deduct);
-            $mycred->add_to_log('purchase_quiz',$user_id,$deduct,__('Student subscibed to quiz','wplms-mycred'),$quiz_id);
+              if(!$mycred->has_entry( 'purchase_quiz',$quiz_id,$user_id)){
+                $flag=1;
+                $deduct = -1*$points;
+                $mycred->update_users_balance( $user_id, $deduct);
+                $mycred->add_to_log('purchase_quiz',$user_id,$deduct,__('Student subscibed to quiz','wplms-mycred'),$quiz_id);
               }else{
                 $flag=1;
-              }  
-          }
+              }
+            }
+        }
+
       if(!$flag){
         return $html;
       }  
-          return $button;
+      return $button;
     }
 
 }
