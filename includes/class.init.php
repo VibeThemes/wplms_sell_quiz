@@ -154,7 +154,7 @@ class WPLMS_Sell_Quiz_Init{
                     $pid .= '?redirect';
                     }
                     $flag=0;
-                    $html='<a href="'.$pid.'"class="button create-group-button full"> '.__('Take this Quiz','vibe').'</a>';
+                    $html='<a href="'.$pid.'"class="button  full is-primary"> '.__('Take this Quiz','vibe').'</a>';
                 }else{
                     $flag=1;
                 }
@@ -174,7 +174,7 @@ class WPLMS_Sell_Quiz_Init{
                     $flag=0;
                     $pmpro_levels_page_id = get_option('pmpro_levels_page_id');
                       $link = get_permalink($pmpro_levels_page_id);
-                      $html='<a href="'.$link.'"class="button create-group-button full"> '.__('Take this Quiz','vibe').'</a>';
+                      $html='<a href="'.$link.'"class="button  full is-primary"> '.__('Take this Quiz','vibe').'</a>';
                  }
              }
              
@@ -186,7 +186,7 @@ class WPLMS_Sell_Quiz_Init{
               $balance = $mycred->get_users_cred( $user_id );
               if($balance < $points){
                  $flag=0;
-                 $html= '<a href="#"class="button create-group-button full"> '.__('Take this Quiz','vibe').'<span>'.__('<br/>Not enough points.','vibe').'</span></a>';
+                 $html= '<a href="#"class="button full is-primary"> '.__('Take this Quiz','vibe').'<span>'.__('<br/>Not enough points.','vibe').'</span></a>';
               }
 
               if(!$mycred->has_entry( 'purchase_quiz',$quiz_id,$user_id)){
