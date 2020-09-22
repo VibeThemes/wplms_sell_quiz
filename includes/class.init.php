@@ -147,6 +147,7 @@ class WPLMS_Sell_Quiz_Init{
             if(isset($pid) && is_numeric($pid) && get_post_type($pid) == 'product'){
               $product_taken = wc_customer_bought_product('',$user_id,$pid);
                 if(!$product_taken){
+                  $product = wc_get_product($pid);
                   $pid=get_permalink($pid);
                   $check=vibe_get_option('direct_checkout');
                   $check =intval($check);
@@ -154,7 +155,8 @@ class WPLMS_Sell_Quiz_Init{
                     $pid .= '?redirect';
                     }
                     $flag=0;
-                    $html='<a href="'.$pid.'"class="button  full is-primary"> '.__('Take this Quiz','vibe').'</a>';
+                    
+                    $html='<a href="'.$pid.'"class="button start_quiz_button full is-primary"> '.__('Purchase Quiz','vibe').'<span>'.$product->get_price_html().'</span></a>';
                 }else{
                     $flag=1;
                 }
@@ -174,19 +176,20 @@ class WPLMS_Sell_Quiz_Init{
                     $flag=0;
                     $pmpro_levels_page_id = get_option('pmpro_levels_page_id');
                       $link = get_permalink($pmpro_levels_page_id);
-                      $html='<a href="'.$link.'"class="button  full is-primary"> '.__('Take this Quiz','vibe').'</a>';
+                      $html='<a href="'.$link.'"class="button  start_quiz_button full is-primary"> '.__('Get Membership for Quiz','vibe').'</a>';
                  }
              }
              
         }
         if(in_array('wplms-mycred-addon/wplms-mycred-addon.php', apply_filters('active_plugins', get_option('active_plugins')))){
-                    $points = get_post_meta($quiz_id,'vibe_quiz_mycred_points',true);
+            
+            $points = get_post_meta($quiz_id,'vibe_quiz_mycred_points',true);
             if(!empty($points)){
                 $mycred = mycred();
               $balance = $mycred->get_users_cred( $user_id );
               if($balance < $points){
                  $flag=0;
-                 $html= '<a href="#"class="button full is-primary"> '.__('Take this Quiz','vibe').'<span>'.__('<br/>Not enough points.','vibe').'</span></a>';
+                 $html= '<a href="#"class="button start_quiz_button full is-primary"> '.__('Take this Quiz','vibe').'<span>'.__('Not enough points.','vibe').'</span></a>';
               }
 
               if(!$mycred->has_entry( 'purchase_quiz',$quiz_id,$user_id)){
@@ -201,6 +204,22 @@ class WPLMS_Sell_Quiz_Init{
         }
 
       if(!$flag){
+        ob_start();
+        ?>
+        <script>
+          document.addEventListener('DOMContentLoaded',function(){
+            if(document.querySelector('.start_quiz_button')){
+                document.querySelector('.start_quiz_button').classList.add('loading');
+            }
+            localforage.getItem('bp_login_token').then(function(token){
+              if(token){
+                document.querySelector('.start_quiz_button').style.display='none'; 
+              }
+            });
+        });
+        </script>
+        <?php
+        $html .= ob_get_clean();
         return $html;
       }  
       return $button;
