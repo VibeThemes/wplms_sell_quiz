@@ -7,6 +7,7 @@ Version: 1.1
 Author: VibeThemes
 Author URI: http://www.vibethemes.com
 License: GPL2
+Text Domain: wplms-sell-quiz
 */
 
 if ( ! defined( 'ABSPATH' ) ) exit;

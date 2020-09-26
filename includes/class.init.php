@@ -32,8 +32,8 @@ class WPLMS_Sell_Quiz_Init{
         $settings = array();
         if(in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))){
             $settings[] =array(
-              'label' => __('Associated Product','vibe-customtypes'), // <label>
-              'desc'  => __('Associated Product with the Course.','vibe-customtypes'), // description
+              'label' => __('Associated Product','wplms-sell-quiz'), // <label>
+              'desc'  => __('Associated Product with the Course.','wplms-sell-quiz'), // description
               'id'  => 'vibe_quiz_product', // field id and name
               'type'  => 'selectcpt', // type of field
               'post_type'=> 'product',
@@ -46,8 +46,8 @@ class WPLMS_Sell_Quiz_Init{
                 $level_array[]= array('value' =>$level->id,'label'=>$level->name);
               }
             $settings[] =array(
-              'label' => __('PMPro Membership','vibe-customtypes'), // <label>
-              'desc'  => __('Required Membership level for this quiz','vibe-customtypes'), // description
+              'label' => __('PMPro Membership','wplms-sell-quiz'), // <label>
+              'desc'  => __('Required Membership level for this quiz','wplms-sell-quiz'), // description
               'id'  => 'vibe_quiz_pmpro_membership', // field id and name
               'type'  => 'multiselect', // type of field
                   'options' => $level_array,'from'=>'meta',
@@ -56,8 +56,8 @@ class WPLMS_Sell_Quiz_Init{
           if(in_array('wplms-mycred-addon/wplms-mycred-addon.php', apply_filters('active_plugins', get_option('active_plugins')))){
 
           $settings[] =array( // Text Input
-            'label' => __('MyCred Points','vibe-customtypes'), // <label>
-            'desc'  => __('MyCred Points required to take this quiz.','vibe-customtypes'),
+            'label' => __('MyCred Points','wplms-sell-quiz'), // <label>
+            'desc'  => __('MyCred Points required to take this quiz.','wplms-sell-quiz'),
             'id'  => 'vibe_quiz_mycred_points', // field id and name
             'type'  => 'number', // type of field
             'from'=>'meta',
@@ -98,8 +98,8 @@ class WPLMS_Sell_Quiz_Init{
     function wplms_sell_quiz_as_product($metabox){
           if(in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))){
             $metabox['vibe_quiz_product']=array(
-              'label' => __('Associated Product','vibe-customtypes'), // <label>
-              'desc'  => __('Associated Product with the Course.','vibe-customtypes'), // description
+              'label' => __('Associated Product','wplms-sell-quiz'), // <label>
+              'desc'  => __('Associated Product with the Course.','wplms-sell-quiz'), // description
               'id'  => 'vibe_quiz_product', // field id and name
               'type'  => 'selectcpt', // type of field
               'post_type'=> 'product',
@@ -112,8 +112,8 @@ class WPLMS_Sell_Quiz_Init{
             $level_array[]= array('value' =>$level->id,'label'=>$level->name);
           }
             $metabox['vibe_quiz_pmpro_membership']=array(
-              'label' => __('PMPro Membership','vibe-customtypes'), // <label>
-              'desc'  => __('Required Membership level for this quiz','vibe-customtypes'), // description
+              'label' => __('PMPro Membership','wplms-sell-quiz'), // <label>
+              'desc'  => __('Required Membership level for this quiz','wplms-sell-quiz'), // description
               'id'  => 'vibe_quiz_pmpro_membership', // field id and name
               'type'  => 'multiselect', // type of field
                   'options' => $level_array,
@@ -122,8 +122,8 @@ class WPLMS_Sell_Quiz_Init{
           if(in_array('wplms-mycred-addon/wplms-mycred-addon.php', apply_filters('active_plugins', get_option('active_plugins')))){
 
           $metabox['vibe_quiz_mycred_points']=array( // Text Input
-            'label' => __('MyCred Points','vibe-customtypes'), // <label>
-            'desc'  => __('MyCred Points required to take this quiz.','vibe-customtypes'),
+            'label' => __('MyCred Points','wplms-sell-quiz'), // <label>
+            'desc'  => __('MyCred Points required to take this quiz.','wplms-sell-quiz'),
             'id'  => 'vibe_quiz_mycred_points', // field id and name
             'type'  => 'number' // type of field
           );
