@@ -42,9 +42,12 @@ class WPLMS_Sell_Quiz_Init{
           }
           if ( in_array( 'paid-memberships-pro/paid-memberships-pro.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) )) {
             $levels=pmpro_getAllLevels();
-              foreach($levels as $level){
-                $level_array[]= array('value' =>$level->id,'label'=>$level->name);
-              }
+            $level_array= [];
+            if(!empty($levels)){
+                foreach($levels as $level){
+                    $level_array[]= array('value' =>$level->id,'label'=>$level->name);
+                }
+            }
             $settings[] =array(
               'label' => __('PMPro Membership','wplms-sell-quiz'), // <label>
               'desc'  => __('Required Membership level for this quiz','wplms-sell-quiz'), // description
